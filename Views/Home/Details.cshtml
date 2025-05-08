@@ -1,0 +1,287 @@
+@model ProjectEvaluationSystem.Models.Project
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb" class="mb-4 animate__animated animate__fadeIn">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Ana Sayfa</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-4">
+        <div class="col-lg-8 col-md-7">
+            <div class="card shadow-sm border-0 h-100 animate__animated animate__fadeIn">
+                <div class="card-body">
+                    <h1 class="mb-3 d-flex align-items-center">
+                        @Model.Name
+                        <span class="badge bg-primary ms-3 fs-6">
+                            <i class="bi bi-award-fill"></i> @Model.AverageRating.ToString("F1")/10
+                        </span>
+                    </h1>
+                    
+                    @if (!string.IsNullOrEmpty(Model.GithubLink))
+                    {
+                        <a href="@Model.GithubLink" target="_blank" class="github-link mb-3 d-inline-flex align-items-center text-decoration-none">
+                            <i class="bi bi-github fs-4 me-2"></i> <span>GitHub Repo</span>
+                        </a>
+                    }
+                    
+                    <!-- Progress Bar Puanlama Gösterimi -->
+                    <div class="rating-progress my-4">
+                        <h6 class="mb-2">Proje Puanı</h6>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-success" 
+                                 role="progressbar" 
+                                 style="width: @(Model.AverageRating * 10)%;" 
+                                 aria-valuenow="@(Model.AverageRating * 10)" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1">
+                            <small class="text-muted">@Model.Evaluations.Count değerlendirme</small>
+                            <small class="text-muted fw-bold">@Model.AverageRating.ToString("F1")/10</small>
+                        </div>
+                    </div>
+                    
+                    <div class="my-4">
+                        <h5 class="card-title border-start border-primary border-4 ps-2">Proje Açıklaması</h5>
+                        <div class="bg-light p-3 rounded border mt-3">
+                            @Model.Description
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-between">
+                        <small class="text-muted"><i class="bi bi-calendar3"></i> Eklenme: @Model.CreatedDate.ToString("dd MMMM yyyy")</small>
+                        <small class="text-muted"><i class="bi bi-people"></i> Katkıda Bulunanlar: @(Model.Contributors?.Count ?? 0) kişi</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-5 mt-md-0 mt-4">
+            <div class="card shadow-sm border-0 h-100 animate__animated animate__fadeIn" style="animation-delay: 0.2s">
+                <div class="card-body p-0">
+                    @if (!string.IsNullOrEmpty(Model.ImagePath))
+                    {
+                        <img src="@Model.ImagePath" class="img-fluid w-100 project-detail-image" alt="@Model.Name" style="object-fit: cover; max-height: 300px; width: 100%;" />
+                    }
+                    else
+                    {
+                        <div class="project-detail-image d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
+                            <i class="bi bi-code-square text-secondary" style="font-size: 8rem;"></i>
+                        </div>
+                    }
+                    
+                    <!-- Kullanıcı bilgisi ve hızlı değerlendirme -->
+                    <div class="p-3">
+                        @if (!string.IsNullOrEmpty(ViewBag.UserFirstName) && !string.IsNullOrEmpty(ViewBag.UserLastName))
+                        {
+                            <div class="user-info alert alert-info mb-3">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-person-circle fs-4 me-2"></i>
+                                    <div>
+                                        <span>@ViewBag.UserFirstName @ViewBag.UserLastName</span> 
+                                        <small class="d-block">olarak değerlendirebilirsiniz</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <a href="#evaluationForm" class="btn btn-primary w-100">
+                                <i class="bi bi-star-fill me-2"></i> Projeyi Değerlendir
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning mb-3">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i> Değerlendirme yapmak için lütfen ana sayfada bilgilerinizi girin.
+                            </div>
+                            
+                            <a asp-action="Index" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-person-plus-fill me-2"></i> Bilgilerimi Girmek İçin Ana Sayfaya Dön
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Değerlendirme ve Yorumlar Bölümü -->
+    <div class="row">
+        @if (!string.IsNullOrEmpty(ViewBag.UserFirstName) && !string.IsNullOrEmpty(ViewBag.UserLastName))
+        {
+            <div class="col-lg-6 col-md-12 mb-4">
+                <div class="card shadow-sm border-0 h-100 animate__animated animate__fadeIn" id="evaluationForm" style="animation-delay: 0.4s">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h5 class="mb-0"><i class="bi bi-star-fill me-2"></i> Projeyi Değerlendir</h5>
+                    </div>
+                    <div class="card-body">
+                        <form asp-action="SubmitEvaluation" method="post" class="needs-validation" novalidate>
+                            <input type="hidden" name="projectId" value="@Model.Id" />
+                            <input type="hidden" name="FirstName" value="@ViewBag.UserFirstName" />
+                            <input type="hidden" name="LastName" value="@ViewBag.UserLastName" />
+                            
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Puan (1-10)</label>
+                                <div class="rating-input d-flex flex-row-reverse justify-content-center fs-2 mb-2">
+                                    @for (int i = 10; i >= 1; i--)
+                                    {
+                                        <input type="radio" class="btn-check" name="Rating" id="star@i" value="@i" autocomplete="off" required />
+                                        <label for="star@i" class="btn btn-rating px-1" title="@i puan">@i</label>
+                                    }
+                                </div>
+                                <div class="text-center mb-2">
+                                    <span id="ratingText" class="badge bg-secondary fs-6">Henüz puanlamadınız</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Yorumunuz (İsteğe bağlı)</label>
+                                <textarea name="Comment" class="form-control" rows="4" 
+                                    placeholder="Proje hakkında görüşlerinizi yazabilirsiniz..."></textarea>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-send-fill me-2"></i> Değerlendirmeyi Gönder
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+        
+        <div class="col-lg-6 col-md-12 mb-4">
+            <div class="card shadow-sm border-0 h-100 animate__animated animate__fadeIn" style="animation-delay: 0.6s">
+                <div class="card-header bg-info text-white py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-chat-square-text-fill me-2"></i> 
+                        Değerlendirmeler
+                        <span class="badge bg-white text-info rounded-pill ms-2">@Model.Evaluations.Count</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Evaluations.Any())
+                    {
+                        <div class="alert alert-info text-center">
+                            <i class="bi bi-chat-left-text fs-4 d-block mb-2"></i> 
+                            <p class="mb-0">Henüz değerlendirme yapılmamış.</p>
+                            <p class="mb-0">İlk değerlendirmeyi siz yapın!</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="evaluations-list">
+                            @foreach (var evaluation in Model.Evaluations.OrderByDescending(e => e.EvaluationDate))
+                            {
+                                <div class="evaluation-item p-3 mb-3 border rounded animate__animated animate__fadeIn">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="d-flex align-items-center">
+                                            <div class="evaluation-avatar bg-light rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                                style="width: 40px; height: 40px;">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                            <h6 class="mb-0">@evaluation.FirstName @evaluation.LastName</h6>
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill fs-6">@evaluation.Rating/10</span>
+                                    </div>
+                                    <div class="mt-2">
+                                        <div class="progress" style="height: 5px;">
+                                            <div class="progress-bar bg-success" 
+                                                role="progressbar" 
+                                                style="width: @(evaluation.Rating * 10)%;" 
+                                                aria-valuenow="@(evaluation.Rating * 10)" 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(evaluation.Comment))
+                                    {
+                                        <p class="my-2 evaluation-comment">@evaluation.Comment</p>
+                                    }
+                                    <small class="text-muted d-block mt-2">
+                                        <i class="bi bi-clock"></i> @evaluation.EvaluationDate.ToString("dd.MM.yyyy HH:mm")
+                                    </small>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4 text-center">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i> Tüm Projelere Dön
+        </a>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Puanlama sistemi stilleri */
+        .btn-rating {
+            color: #ccc;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-rating:hover, 
+        .btn-rating:hover ~ .btn-rating,
+        .btn-check:checked + .btn-rating {
+            color: #ffc107;
+            transform: scale(1.2);
+        }
+        
+        .btn-rating:hover ~ .btn-rating {
+            color: #ccc;
+        }
+        
+        .rating-input {
+            direction: rtl;
+        }
+        
+        .evaluation-comment {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 10px;
+            font-style: italic;
+        }
+        
+        .github-link {
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 6px 12px;
+            transition: all 0.3s;
+        }
+        
+        .github-link:hover {
+            background-color: #f1f1f1;
+            border-color: #333;
+        }
+        
+        /* Animasyonlar */
+        .evaluation-item {
+            transition: all 0.3s ease;
+        }
+        
+        .evaluation-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
+        }
+    </style>
+}
+
+@section Scripts {
+    <!-- JavaScript is loaded from ~/js/evaluation.js -->
+}

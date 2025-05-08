@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Proje Değerlendirme Sistemi</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/evaluation.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/logo-placeholder.png" alt="Logo" onerror="this.style.display='none'" />
+                    <span>Proje Değerlendirme Sistemi</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door"></i> Ana Sayfa
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Login">
+                                <i class="bi bi-shield-lock"></i> Admin Girişi
+                            </a>
+                        </li>
+                    </ul>
+                    @if (Context.Session.GetString("AdminId") != null)
+                    {
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">
+                                    <i class="bi bi-gear"></i> Admin Panel
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Logout">
+                                    <i class="bi bi-box-arrow-right"></i> Çıkış Yap
+                                </a>
+                            </li>
+                        </ul>
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    <main role="main" class="pb-3">
+        <div id="notificationContainer"></div>
+        
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3 animate__animated animate__fadeInDown" style="z-index: 1050; min-width: 300px; max-width: 90%;" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3 animate__animated animate__fadeInDown" style="z-index: 1050; min-width: 300px; max-width: 90%;" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @RenderBody()
+    </main>
+
+    <footer class="border-top footer text-muted">
+        <div class="container-fluid text-center py-3">
+            &copy; @DateTime.Now.Year - Proje Değerlendirme Sistemi
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/evaluation.js" asp-append-version="true"></script>
+    
+    <script>
+        // Otomatik olarak alertleri 5 saniye sonra kapat
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    // Bootstrap 5 ile uyumlu alert kapatma
+                    if (typeof bootstrap !== 'undefined') {
+                        var bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    } else {
+                        // Fallback
+                        alert.classList.remove('show');
+                        setTimeout(() => {
+                            alert.remove();
+                        }, 150);
+                    }
+                });
+            }, 5000);
+            
+            // Aktif menü öğesini vurgula
+            const currentUrl = window.location.pathname.toLowerCase();
+            document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+                const href = link.getAttribute('href').toLowerCase();
+                if (currentUrl.includes(href) && href !== '/') {
+                    link.classList.add('active');
+                } else if (currentUrl === '/' && href === '/') {
+                    link.classList.add('active');
+                }
+            });
+            
+            // TempData başarı mesajını Toast bildirimi olarak göster
+            if (@(TempData["SuccessMessage"] != null ? "true" : "false")) {
+                if (typeof showSuccessNotification === 'function') {
+                    showSuccessNotification('@TempData["SuccessMessage"]');
+                }
+            }
+            
+            // TempData hata mesajını Toast bildirimi olarak göster
+            if (@(TempData["ErrorMessage"] != null ? "true" : "false")) {
+                if (typeof showErrorNotification === 'function') {
+                    showErrorNotification('@TempData["ErrorMessage"]');
+                }
+            }
+        });
+    </script>
+    
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+

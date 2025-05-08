@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Proje Değerlendirme Sistemi</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/evaluation.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+</head>
+<body class="login-page">
+    <main role="main" class="w-100">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3 animate__animated animate__fadeInDown" style="z-index: 1050; min-width: 300px; max-width: 90%;" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3 animate__animated animate__fadeInDown" style="z-index: 1050; min-width: 300px; max-width: 90%;" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @RenderBody()
+    </main>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/evaluation.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    
+    <script>
+        // Otomatik olarak alertleri 5 saniye sonra kapat
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.alert');
+                alerts.forEach(function(alert) {
+                    // Bootstrap 5 ile uyumlu alert kapatma
+                    if (typeof bootstrap !== 'undefined') {
+                        var bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    } else {
+                        // Fallback
+                        alert.classList.remove('show');
+                        setTimeout(() => {
+                            alert.remove();
+                        }, 150);
+                    }
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+</html> 
