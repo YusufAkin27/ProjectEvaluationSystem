@@ -1,0 +1,9 @@
+C:\Users\ysufa\Desktop\ProjectEvaluationSystem\obj\Release\net9.0\ProjectEvaluationSystem.csproj.AssemblyReference.cache
+C:\Users\ysufa\Desktop\ProjectEvaluationSystem\obj\Release\net9.0\ProjectEvaluationSystem.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ysufa\Desktop\ProjectEvaluationSystem\obj\Release\net9.0\ProjectEvaluationSystem.AssemblyInfoInputs.cache
+C:\Users\ysufa\Desktop\ProjectEvaluationSystem\obj\Release\net9.0\ProjectEvaluationSystem.AssemblyInfo.cs
+C:\Users\ysufa\Desktop\ProjectEvaluationSystem\obj\Release\net9.0\ProjectEvaluationSystem.csproj.CoreCompileInputs.cache
+C:\Users\ysufa\Desktop\ProjectEvaluationSystem\obj\Release\net9.0\ProjectEvaluationSystem.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\ysufa\Desktop\ProjectEvaluationSystem\obj\Release\net9.0\ProjectEvaluationSystem.RazorAssemblyInfo.cache
+C:\Users\ysufa\Desktop\ProjectEvaluationSystem\obj\Release\net9.0\ProjectEvaluationSystem.RazorAssemblyInfo.cs
+C:\Users\ysufa\Desktop\ProjectEvaluationSystem\obj\Release\net9.0\ProjectEvaluationSystem.sourcelink.json
